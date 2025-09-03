@@ -1,4 +1,4 @@
-/* style.css (Güncellenmiş Hali) */
+/* style.css (Güncellenmiş Hali - Fiyat Çakışması Düzeltmesi) */
 
 /* Genel Stil */
 :root {
@@ -64,9 +64,11 @@ main {
 /* --- YENİ SİNYAL TAKİP BARI STİLLERİ --- */
 .progress-bar-area {
     width: 100%;
-    padding-top: 30px; /* Üstteki oklar için boşluk */
-    padding-bottom: 40px; /* Alttaki ok için boşluk */
+    padding-top: 35px; /* Üstteki oklar için boşluk */
+    padding-bottom: 45px; /* Alttaki ok için boşluk */
     position: relative;
+    /* Marker'ların taşmasını engellemek için overflow hidden */
+    overflow: hidden; 
 }
 
 .progress-bar-track {
@@ -79,23 +81,29 @@ main {
 
 .price-marker {
     position: absolute;
-    transform: translateX(-50%);
+    /* Varsayılan olarak ortalamayı kaldırdık, JS ile dinamik yönetilecek */
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: max-content;
+    width: auto; /* Genişliği içeriğe göre ayarla */
+    min-width: 60px; /* Küçük ekranlarda okunabilirliği artırmak için min genişlik */
+    text-align: center; /* İç metni ortala */
+    padding: 2px 5px; /* Kenar boşluğu ekle */
+    box-sizing: border-box; /* Padding genişliğe dahil olsun */
 }
 
 .marker-label {
-    font-size: 0.8em;
+    font-size: 0.75em; /* Daha küçük font */
     font-weight: bold;
     color: var(--text-secondary);
+    white-space: nowrap; /* Metin tek satırda kalsın */
 }
 
 .marker-value {
-    font-size: 0.9em;
+    font-size: 0.85em; /* Daha küçük font */
     font-weight: bold;
     color: var(--text-primary);
+    white-space: nowrap; /* Metin tek satırda kalsın */
 }
 
 /* Çizginin üstündeki işaretçiler */
@@ -116,7 +124,7 @@ main {
     height: 0;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
-    border-top: 6px solid currentColor; /* Kendi rengini alır */
+    border-top: 6px solid currentColor;
 }
 
 .marker-bottom::after {
@@ -127,7 +135,7 @@ main {
     height: 0;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
-    border-bottom: 6px solid currentColor; /* Kendi rengini alır */
+    border-bottom: 6px solid currentColor;
 }
 
 /* Renkler */
@@ -139,3 +147,10 @@ main {
     font-size: 1.1em;
 }
 .marker-current .marker-value { color: var(--white); }
+
+footer {
+    text-align: center;
+    margin-top: 50px;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}

@@ -80,33 +80,46 @@ function updateUI() {
         if (statusContainer) {
             if (data.signal) {
                 const { entry_price, stop_loss, take_profit_2r } = data.signal;
-                const totalRange = Math.abs(take_profit_2r - stop_loss);
                 
-                // Pozisyonları yüzde olarak hesapla
-                const entryPosPercent = (Math.abs(entry_price - stop_loss) / totalRange) * 100;
-                let currentPosPercent = (Math.abs(data.price - stop_loss) / totalRange) * 100;
-                // Fiyatın aralık dışına taşmasını engelle (görsel olarak)
-                currentPosPercent = Math.max(0, Math.min(100, currentPosPercent));
+                // Minimum ve maksimum fiyatı belirle
+                const minPrice = Math.min(stop_loss, take_profit_2r);
+                const maxPrice = Math.max(stop_loss, take_profit_2r);
+                const totalRange = maxPrice - minPrice;
+
+                // Marker'ların başlangıç pozisyonlarını hesapla
+                const calculatePosition = (price) => {
+                    if (totalRange === 0) return 0; // Sıfır bölme hatasını önle
+                    return ((price - minPrice) / totalRange) * 100;
+                };
+
+                const slPos = calculatePosition(stop_loss);
+                const entryPos = calculatePosition(entry_price);
+                let currentPos = calculatePosition(data.price);
+                const tpPos = calculatePosition(take_profit_2r);
+
+                // Anlık fiyat marker'ının aralık dışına taşmasını engelle
+                currentPos = Math.max(0, Math.min(100, currentPos));
+
 
                 // --- YENİ HTML YAPISI ---
                 statusContainer.innerHTML = `
                     <div class="progress-bar-area">
-                        <div class="price-marker marker-top marker-sl" style="left: 0%;">
+                        <div class="price-marker marker-top marker-sl" style="left: ${slPos.toFixed(2)}%;">
                             <span class="marker-label">SL</span>
                             <span class="marker-value">${stop_loss.toFixed(2)}</span>
                         </div>
-                        <div class="price-marker marker-top marker-entry" style="left: ${entryPosPercent.toFixed(2)}%;">
+                        <div class="price-marker marker-top marker-entry" style="left: ${entryPos.toFixed(2)}%;">
                             <span class="marker-label">Giriş</span>
                             <span class="marker-value">${entry_price.toFixed(2)}</span>
                         </div>
-                        <div class="price-marker marker-top marker-tp" style="left: 100%;">
+                        <div class="price-marker marker-top marker-tp" style="left: ${tpPos.toFixed(2)}%;">
                             <span class="marker-label">TP</span>
                             <span class="marker-value">${take_profit_2r.toFixed(2)}</span>
                         </div>
 
                         <div class="progress-bar-track"></div>
 
-                        <div class="price-marker marker-bottom marker-current" style="left: ${currentPosPercent.toFixed(2)}%;">
+                        <div class="price-marker marker-bottom marker-current" style="left: ${currentPos.toFixed(2)}%;">
                              <span class="marker-value">${data.price.toFixed(2)}</span>
                         </div>
                     </div>
