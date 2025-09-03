@@ -1,3 +1,5 @@
+/* style.css (Güncellenmiş Hali) */
+
 /* Genel Stil */
 :root {
     --bg-dark: #121826;
@@ -8,6 +10,7 @@
     --green: #22c55e;
     --red: #ef4444;
     --blue: #3b82f6;
+    --white: #ffffff;
 }
 
 body {
@@ -25,7 +28,7 @@ header {
 }
 
 h1, h2 {
-    color: #FFFFFF;
+    color: var(--white);
 }
 
 main {
@@ -42,136 +45,97 @@ main {
 }
 
 /* Telegram Bölümü */
-#telegram-section {
-    text-align: center;
-}
-
-.telegram-button {
-    display: inline-block;
-    background-color: #2AABEE;
-    color: white;
-    padding: 12px 25px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    margin: 10px 0;
-    transition: background-color 0.2s;
-}
-
-.telegram-button:hover {
-    background-color: #1f9ad8;
-}
-
-.small-text {
-    font-size: 0.8em;
-    color: var(--text-secondary);
-}
-
+#telegram-section { text-align: center; }
+.telegram-button { display: inline-block; background-color: #2AABEE; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 10px 0; transition: background-color 0.2s; }
+.telegram-button:hover { background-color: #1f9ad8; }
+.small-text { font-size: 0.8em; color: var(--text-secondary); }
 
 /* Kripto Kartları */
-#crypto-cards-container {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.crypto-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-
-.crypto-symbol {
-    font-size: 2em;
-    font-weight: bold;
-}
-
-.crypto-price {
-    font-size: 2em;
-    font-weight: 300;
-}
-
+#crypto-cards-container { display: flex; flex-direction: column; gap: 25px; }
+.crypto-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+.crypto-symbol { font-size: 2em; font-weight: bold; }
+.crypto-price { font-size: 2em; font-weight: 300; }
 .price-up { color: var(--green); }
 .price-down { color: var(--red); }
+.signal-status-container { min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.searching-signal { font-size: 1.2em; color: var(--text-secondary); animation: pulse 2s infinite; }
+@keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
-.signal-status-container {
-    min-height: 100px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.searching-signal {
-    font-size: 1.2em;
-    color: var(--text-secondary);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
-}
-
-/* Sinyal Takip Barı */
-.progress-bar-container {
+/* --- YENİ SİNYAL TAKİP BARI STİLLERİ --- */
+.progress-bar-area {
     width: 100%;
+    padding-top: 30px; /* Üstteki oklar için boşluk */
+    padding-bottom: 40px; /* Alttaki ok için boşluk */
     position: relative;
-    padding: 30px 0;
 }
 
 .progress-bar-track {
     width: 100%;
-    height: 10px;
-    background-color: #333;
-    border-radius: 5px;
+    height: 8px;
+    background-color: #374151; /* Gri track */
+    border-radius: 4px;
     position: relative;
-}
-
-.progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--red) 0%, #ffc107 50%, var(--green) 100%);
-    border-radius: 5px;
 }
 
 .price-marker {
     position: absolute;
-    top: -25px;
     transform: translateX(-50%);
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+}
+
+.marker-label {
     font-size: 0.8em;
     font-weight: bold;
+    color: var(--text-secondary);
 }
 
-.price-marker::after {
+.marker-value {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+/* Çizginin üstündeki işaretçiler */
+.marker-top {
+    bottom: 20px; /* Çizginin üstünde konumlandır */
+}
+/* Çizginin altındaki işaretçiler */
+.marker-bottom {
+    top: 20px; /* Çizginin altında konumlandır */
+}
+
+/* Üçgen Oklar */
+.marker-top::after {
     content: '';
-    display: block;
-    width: 2px;
-    height: 45px;
-    background-color: currentColor;
-    margin: 5px auto 0;
+    position: absolute;
+    bottom: -8px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid currentColor; /* Kendi rengini alır */
 }
 
+.marker-bottom::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid currentColor; /* Kendi rengini alır */
+}
+
+/* Renkler */
 .marker-sl { color: var(--red); }
 .marker-tp { color: var(--green); }
 .marker-entry { color: var(--text-secondary); }
-.marker-current {
-    color: white;
-    background-color: var(--blue);
-    padding: 4px 8px;
-    border-radius: 5px;
-    top: -30px;
-    font-size: 0.9em;
+.marker-current { 
+    color: var(--blue); 
+    font-size: 1.1em;
 }
-.marker-current::after { height: 55px; background-color: var(--blue); }
-
-footer {
-    text-align: center;
-    margin-top: 50px;
-    color: var(--text-secondary);
-    font-size: 0.9em;
-}
+.marker-current .marker-value { color: var(--white); }
