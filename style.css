@@ -1,0 +1,177 @@
+/* Genel Stil */
+:root {
+    --bg-dark: #121826;
+    --bg-card: #1A2233;
+    --text-primary: #F0F2F5;
+    --text-secondary: #a0a0a0;
+    --border-color: #333c4d;
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #3b82f6;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+h1, h2 {
+    color: #FFFFFF;
+}
+
+main {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+}
+
+/* Telegram Bölümü */
+#telegram-section {
+    text-align: center;
+}
+
+.telegram-button {
+    display: inline-block;
+    background-color: #2AABEE;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 10px 0;
+    transition: background-color 0.2s;
+}
+
+.telegram-button:hover {
+    background-color: #1f9ad8;
+}
+
+.small-text {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+}
+
+
+/* Kripto Kartları */
+#crypto-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.crypto-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.crypto-symbol {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.crypto-price {
+    font-size: 2em;
+    font-weight: 300;
+}
+
+.price-up { color: var(--green); }
+.price-down { color: var(--red); }
+
+.signal-status-container {
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.searching-signal {
+    font-size: 1.2em;
+    color: var(--text-secondary);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* Sinyal Takip Barı */
+.progress-bar-container {
+    width: 100%;
+    position: relative;
+    padding: 30px 0;
+}
+
+.progress-bar-track {
+    width: 100%;
+    height: 10px;
+    background-color: #333;
+    border-radius: 5px;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red) 0%, #ffc107 50%, var(--green) 100%);
+    border-radius: 5px;
+}
+
+.price-marker {
+    position: absolute;
+    top: -25px;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.price-marker::after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 45px;
+    background-color: currentColor;
+    margin: 5px auto 0;
+}
+
+.marker-sl { color: var(--red); }
+.marker-tp { color: var(--green); }
+.marker-entry { color: var(--text-secondary); }
+.marker-current {
+    color: white;
+    background-color: var(--blue);
+    padding: 4px 8px;
+    border-radius: 5px;
+    top: -30px;
+    font-size: 0.9em;
+}
+.marker-current::after { height: 55px; background-color: var(--blue); }
+
+footer {
+    text-align: center;
+    margin-top: 50px;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
