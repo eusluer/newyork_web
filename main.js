@@ -1,8 +1,8 @@
 // main.js (Doğru Geri Sayım Mantığı ile Son Hali)
 
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'; 
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-const TELEGRAM_BOT_USERNAME = 'YOUR_BOT_USERNAME';
+const SUPABASE_URL = 'https://muwqydzmponlsoagasnw.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11d3F5ZHptcG9ubHNvYWdhc253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyMDgzNzMsImV4cCI6MjA2ODc4NDM3M30.qvjVdeldF9xCHTyjd8u4AStg2cKCRpTXFmJr62wAbB0';
+const TELEGRAM_BOT_USERNAME = '8216849159:AAFCsDsS9k97NuaTuU1l7i20SDRhLHgiuTA';
 
 const SYMBOLS = ['BTC/USDT', 'ETH/USDT'];
 const CRYPTO_CARDS_CONTAINER = document.getElementById('crypto-cards-container');
