@@ -1,4 +1,4 @@
-/* style.css (Sinyal Çizgisi Düzeltmesi) */
+/* style.css (Güncellenmiş Sinyal Çizgisi Düzeltmesi) */
 :root { --bg-dark: #121826; --bg-card: #1A2233; --text-primary: #F0F2F5; --text-secondary: #a0a0a0; --border-color: #333c4d; --green: #22c55e; --red: #ef4444; --blue: #3b82f6; --white: #ffffff; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-dark); color: var(--text-primary); margin: 0; padding: 20px; }
 header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; }
@@ -20,30 +20,86 @@ main { max-width: 900px; margin: 0 auto; }
 .countdown { font-size: 1.5em; color: var(--white); font-weight: bold; }
 @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
-/* --- YENİ SİNYAL TAKİP BARI STİLLERİ --- */
-.progress-bar-area { width: 100%; padding: 30px 10px; box-sizing: border-box; position: relative; }
-.progress-bar-track { width: 100%; height: 8px; background-color: #374151; border-radius: 4px; position: relative; }
+/* --- GÜNCELLENMİŞ SİNYAL TAKİP BARI STİLLERİ --- */
+.progress-bar-area { 
+    width: 100%; 
+    padding: 30px 0; /* Sol ve sağ padding'i sıfırla, marker'lar tam kenara oturabilsin */
+    box-sizing: border-box; 
+    position: relative; 
+    display: flex; /* Marker'lar için esnek bir alan sağlar */
+    justify-content: space-between; /* Marker'ları yayar */
+    align-items: center;
+}
+.progress-bar-track { 
+    width: 100%; 
+    height: 8px; 
+    background-color: #374151; 
+    border-radius: 4px; 
+    position: absolute; /* Marker'ların altında kalsın */
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1; /* Marker'ların altında kalmasını sağla */
+}
 
+/* Marker'lar için genel stil */
 .price-marker {
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 80px; /* Sabit genişlik vererek çakışmayı önle */
-    text-align: center;
+    z-index: 2; /* Marker'lar çizginin üstünde olsun */
+    min-width: 50px; /* Marker'ların minimum genişliği */
+    white-space: nowrap; /* Metnin tek satırda kalmasını sağlar */
+    font-size: 0.9em; /* Yazıları biraz küçült */
+    line-height: 1.2; /* Satır aralığını ayarla */
 }
 
-.marker-label { font-size: 0.8em; font-weight: bold; color: var(--text-secondary); }
-.marker-value { font-size: 0.9em; font-weight: bold; color: var(--text-primary); }
+.marker-label { font-weight: bold; color: var(--text-secondary); }
+.marker-value { font-weight: bold; color: var(--text-primary); }
 
-.marker-top { bottom: 15px; }
-.marker-top::after { content: ''; position: absolute; bottom: -6px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid currentColor; left: 50%; transform: translateX(-50%); }
+/* Marker'ların konumlandırma ve ok stilleri */
+.marker-top { 
+    bottom: calc(50% + 15px); /* Çizginin üstünde, biraz boşlukla */
+    padding-bottom: 8px; /* Ok için boşluk */
+}
+.marker-top::after { 
+    content: ''; 
+    position: absolute; 
+    bottom: 0px; /* Okun tabanı marker'ın tabanında olsun */
+    width: 0; height: 0; 
+    border-left: 6px solid transparent; 
+    border-right: 6px solid transparent; 
+    border-top: 6px solid currentColor; 
+    left: 50%; 
+    transform: translateX(-50%); 
+}
 
-.marker-bottom { top: 15px; }
-.marker-bottom::after { content: ''; position: absolute; top: -6px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid currentColor; left: 50%; transform: translateX(-50%); }
+.marker-bottom { 
+    top: calc(50% + 15px); /* Çizginin altında, biraz boşlukla */
+    padding-top: 8px; /* Ok için boşluk */
+}
+.marker-bottom::after { 
+    content: ''; 
+    position: absolute; 
+    top: 0px; /* Okun üstü marker'ın üstünde olsun */
+    width: 0; height: 0; 
+    border-left: 6px solid transparent; 
+    border-right: 6px solid transparent; 
+    border-bottom: 6px solid currentColor; 
+    left: 50%; 
+    transform: translateX(-50%); 
+}
 
-.marker-sl { color: var(--red); left: 0; transform: translateX(0); align-items: flex-start; }
-.marker-tp { color: var(--green); left: 100%; transform: translateX(-100%); align-items: flex-end; }
-.marker-entry { color: var(--text-secondary); transform: translateX(-50%); }
-.marker-current { color: var(--blue); transform: translateX(-50%); font-size: 1.1em; }
-.marker-current .marker-value { color: var(--white); }
+/* Spesifik marker renkleri ve hizalamaları */
+.marker-sl { color: var(--red); text-align: left; transform: translateX(0); left: 0%; align-items: flex-start;} /* Başlangıçta sola yaslı */
+.marker-tp { color: var(--green); text-align: right; transform: translateX(0); right: 0%; align-items: flex-end;} /* Sonda sağa yaslı */
+.marker-entry { color: var(--text-secondary); text-align: center; transform: translateX(-50%);} /* Ortada merkeze yaslı */
+.marker-current { color: var(--blue); text-align: center; transform: translateX(-50%); font-size: 1.1em; }
+.marker-current .marker-value { color: var(--white); } /* Anlık fiyatın değeri daha belirgin */
+
+/* Küçük ekranlar için düzenlemeler */
+@media (max-width: 600px) {
+    .price-marker { font-size: 0.8em; min-width: 40px; }
+    .marker-top, .marker-bottom { padding-left: 5px; padding-right: 5px; } /* Yan boşlukları azalt */
+}

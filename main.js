@@ -4,6 +4,8 @@ const SUPABASE_URL = 'https://muwqydzmponlsoagasnw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11d3F5ZHptcG9ubHNvYWdhc253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyMDgzNzMsImV4cCI6MjA2ODc4NDM3M30.qvjVdeldF9xCHTyjd8u4AStg2cKCRpTXFmJr62wAbB0';
 const TELEGRAM_BOT_USERNAME = '8216849159:AAFCsDsS9k97NuaTuU1l7i20SDRhLHgiuTA';
 
+// main.js (Güncellenmiş Arayüz ve Konumlandırma)
+
 const SYMBOLS = ['BTC/USDT', 'ETH/USDT'];
 const CRYPTO_CARDS_CONTAINER = document.getElementById('crypto-cards-container');
 let marketData = {};
@@ -51,11 +53,9 @@ async function fetchApiData() {
 }
 
 function renderDashboard() {
-    // New York saatini al
     const nyTime = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}));
     const nyHour = nyTime.getHours();
     
-    // Tarama zamanı başladı mı? (NY saatiyle sabah 4 ve sonrası)
     const isScanningTime = nyHour >= 4;
 
     SYMBOLS.forEach(symbol => {
@@ -64,7 +64,6 @@ function renderDashboard() {
         const statusContainer = document.getElementById(`status-${symbolId}`);
         const data = marketData[symbol];
 
-        // Fiyatları her zaman güncelle
         if (priceElement && data.price > 0) {
             priceElement.textContent = `$${data.price.toFixed(2)}`;
             priceElement.classList.toggle('price-up', data.price > data.lastPrice);
@@ -72,22 +71,27 @@ function renderDashboard() {
         }
         
         if (statusContainer) {
-            // 1. Öncelik: Aktif bir sinyal varsa, her zaman sinyal barını göster
             if (data.signal) {
                 const { entry_price, stop_loss, take_profit_2r } = data.signal;
-                const minPrice = Math.min(stop_loss, take_profit_2r);
-                const maxPrice = Math.max(stop_loss, take_profit_2r);
-                const totalRange = maxPrice - minPrice;
-                const calculatePosition = (price) => totalRange === 0 ? 0 : ((price - minPrice) / totalRange) * 100;
+                
+                // Fiyatları sırala ve en düşük/en yüksek fiyatı bul
+                const allPrices = [stop_loss, entry_price, take_profit_2r, data.price];
+                const minOverallPrice = Math.min(...allPrices);
+                const maxOverallPrice = Math.max(...allPrices);
+                const totalRange = maxOverallPrice - minOverallPrice;
+
+                // Konum hesaplama fonksiyonu (0-100 arası yüzde)
+                const calculatePosition = (price) => totalRange === 0 ? 50 : ((price - minOverallPrice) / totalRange) * 100;
                 
                 const slPos = calculatePosition(stop_loss);
                 const entryPos = calculatePosition(entry_price);
-                let currentPos = calculatePosition(data.price);
                 const tpPos = calculatePosition(take_profit_2r);
-                currentPos = Math.max(0, Math.min(100, currentPos));
+                let currentPos = calculatePosition(data.price);
 
                 statusContainer.innerHTML = `
                     <div class="progress-bar-area">
+                        <div class="progress-bar-track"></div>
+                        
                         <div class="price-marker marker-top marker-sl" style="left: ${slPos}%;">
                             <span class="marker-label">SL</span><span class="marker-value">${stop_loss.toFixed(2)}</span>
                         </div>
@@ -97,13 +101,11 @@ function renderDashboard() {
                         <div class="price-marker marker-top marker-tp" style="left: ${tpPos}%;">
                             <span class="marker-label">TP</span><span class="marker-value">${take_profit_2r.toFixed(2)}</span>
                         </div>
-                        <div class="progress-bar-track"></div>
                         <div class="price-marker marker-bottom marker-current" style="left: ${currentPos}%;">
                              <span class="marker-value">${data.price.toFixed(2)}</span>
                         </div>
                     </div>`;
             }
-            // 2. Öncelik: Sinyal yoksa ve tarama zamanı DEĞİLSE, geri sayımı göster
             else if (!isScanningTime) {
                 const targetTime = new Date(nyTime);
                 targetTime.setHours(4, 0, 0, 0);
@@ -114,7 +116,6 @@ function renderDashboard() {
                 
                 statusContainer.innerHTML = `<div class="status-text">Tarama başlangıcına kalan süre:<div class="countdown">${h}:${m}:${s}</div></div>`;
             }
-            // 3. Öncelik: Sinyal yoksa ve tarama zamanı GELDİYSE, "Sinyal Aranıyor" göster
             else {
                 statusContainer.innerHTML = `<div class="status-text">Sinyal Aranıyor...</div>`;
             }
@@ -122,20 +123,14 @@ function renderDashboard() {
     });
 }
 
-// --- ANA DÖNGÜ ---
 async function masterLoop() {
-    // API çağrılarını her 10 saniyede bir yap
     if (apiCallCounter % 10 === 0) {
         await fetchApiData();
     }
-    // Arayüzü her saniye anlık olarak güncelle
     renderDashboard();
     apiCallCounter++;
 }
 
-// Sayfa ilk yüklendiğinde kartları oluştur ve verileri hemen çek
 initializeCards();
 fetchApiData().then(renderDashboard);
-
-// Ana döngüyü her saniye çalıştır
 setInterval(masterLoop, 1000);
