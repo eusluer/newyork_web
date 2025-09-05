@@ -1,14 +1,13 @@
-// main.js
+// main.js (Geri Sayım Sayacı + Arayüz Düzeltmesi)
 
-// ---- AYARLAR: BU BİLGİLERİ KENDİ SUPABASE PROJENİZDEN ALIN ----
-const SUPABASE_URL = 'https://muwqydzmponlsoagasnw.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11d3F5ZHptcG9ubHNvYWdhc253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyMDgzNzMsImV4cCI6MjA2ODc4NDM3M30.qvjVdeldF9xCHTyjd8u4AStg2cKCRpTXFmJr62wAbB0';
-// ----------------------------------------------------------------
-const TELEGRAM_BOT_USERNAME = 'MarginGateBot'; // Örn: MySignalBot
+const SUPABASE_URL = 'YOUR_SUPABASE_URL'; 
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const TELEGRAM_BOT_USERNAME = 'YOUR_BOT_USERNAME';
 
 const SYMBOLS = ['BTC/USDT', 'ETH/USDT'];
 const CRYPTO_CARDS_CONTAINER = document.getElementById('crypto-cards-container');
 let marketData = {};
+let countdownInterval;
 
 function initializeCards() {
     CRYPTO_CARDS_CONTAINER.innerHTML = '';
@@ -17,15 +16,7 @@ function initializeCards() {
         const card = document.createElement('div');
         card.className = 'card';
         card.id = `card-${symbolId}`;
-        card.innerHTML = `
-            <div class="crypto-card-header">
-                <span class="crypto-symbol">${symbol}</span>
-                <span class="crypto-price" id="price-${symbolId}">Yükleniyor...</span>
-            </div>
-            <div class="signal-status-container" id="status-${symbolId}">
-                <div class="searching-signal">Sinyal Aranıyor...</div>
-            </div>
-        `;
+        card.innerHTML = `<div class="crypto-card-header"><span class="crypto-symbol">${symbol}</span><span class="crypto-price" id="price-${symbolId}">Yükleniyor...</span></div><div class="signal-status-container" id="status-${symbolId}"><div class="status-text">Veriler yükleniyor...</div></div>`;
         CRYPTO_CARDS_CONTAINER.appendChild(card);
         marketData[symbol] = { price: 0, lastPrice: 0, signal: null };
     });
@@ -34,9 +25,7 @@ function initializeCards() {
 
 async function fetchLivePrices() {
     try {
-        const promises = SYMBOLS.map(symbol => 
-            fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.replace('/', '')}`).then(res => res.json())
-        );
+        const promises = SYMBOLS.map(symbol => fetch(`https://fapi.binance.com/fapi/v1/ticker/price?symbol=${symbol.replace('/', '')}`).then(res => res.json()));
         const results = await Promise.all(promises);
         results.forEach(data => {
             const symbol = SYMBOLS.find(s => s.replace('/', '') === data.symbol);
@@ -45,9 +34,7 @@ async function fetchLivePrices() {
                 marketData[symbol].price = parseFloat(data.price);
             }
         });
-    } catch (error) {
-        console.error("Fiyatlar çekilirken hata:", error);
-    }
+    } catch (error) { console.error("Fiyatlar çekilirken hata:", error); }
 }
 
 async function fetchActiveSignals() {
@@ -59,12 +46,41 @@ async function fetchActiveSignals() {
         SYMBOLS.forEach(symbol => {
             marketData[symbol].signal = activeSignals.find(s => s.symbol === symbol) || null;
         });
-    } catch (error) {
-        console.error("Sinyaller çekilirken hata:", error);
+    } catch (error) { console.error("Sinyaller çekilirken hata:", error); }
+}
+
+function updateCountdown() {
+    // New York saatini al
+    const nyTime = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}));
+    const nyHour = nyTime.getHours();
+    
+    // Eğer tarama zamanı dışındaysak geri sayımı göster
+    if (nyHour < 4) {
+        const targetTime = new Date(nyTime);
+        targetTime.setHours(4, 0, 0, 0);
+        
+        const diff = targetTime - nyTime;
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+        const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+        const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+        
+        const countdownString = `${h}:${m}:${s}`;
+        
+        SYMBOLS.forEach(symbol => {
+            const symbolId = symbol.replace('/', '-');
+            const statusContainer = document.getElementById(`status-${symbolId}`);
+            if (statusContainer && !marketData[symbol].signal) {
+                 statusContainer.innerHTML = `<div class="status-text">Tarama için uygun zaman dilimi bekleniyor.<div class="countdown">${countdownString}</div></div>`;
+            }
+        });
+        return true; // Geri sayım aktif
     }
+    return false; // Geri sayım aktif değil
 }
 
 function updateUI() {
+    if (updateCountdown()) return; // Geri sayım aktifse, sinyal arayüzünü güncelleme
+
     SYMBOLS.forEach(symbol => {
         const symbolId = symbol.replace('/', '-');
         const priceElement = document.getElementById(`price-${symbolId}`);
@@ -80,52 +96,39 @@ function updateUI() {
         if (statusContainer) {
             if (data.signal) {
                 const { entry_price, stop_loss, take_profit_2r } = data.signal;
-                
-                // Minimum ve maksimum fiyatı belirle
                 const minPrice = Math.min(stop_loss, take_profit_2r);
                 const maxPrice = Math.max(stop_loss, take_profit_2r);
                 const totalRange = maxPrice - minPrice;
-
-                // Marker'ların başlangıç pozisyonlarını hesapla
-                const calculatePosition = (price) => {
-                    if (totalRange === 0) return 0; // Sıfır bölme hatasını önle
-                    return ((price - minPrice) / totalRange) * 100;
-                };
-
+                const calculatePosition = (price) => totalRange === 0 ? 0 : ((price - minPrice) / totalRange) * 100;
+                
                 const slPos = calculatePosition(stop_loss);
                 const entryPos = calculatePosition(entry_price);
                 let currentPos = calculatePosition(data.price);
                 const tpPos = calculatePosition(take_profit_2r);
-
-                // Anlık fiyat marker'ının aralık dışına taşmasını engelle
                 currentPos = Math.max(0, Math.min(100, currentPos));
 
-
-                // --- YENİ HTML YAPISI ---
                 statusContainer.innerHTML = `
                     <div class="progress-bar-area">
-                        <div class="price-marker marker-top marker-sl" style="left: ${slPos.toFixed(2)}%;">
+                        <div class="price-marker marker-top marker-sl" style="left: ${slPos}%;">
                             <span class="marker-label">SL</span>
                             <span class="marker-value">${stop_loss.toFixed(2)}</span>
                         </div>
-                        <div class="price-marker marker-top marker-entry" style="left: ${entryPos.toFixed(2)}%;">
+                        <div class="price-marker marker-top marker-entry" style="left: ${entryPos}%;">
                             <span class="marker-label">Giriş</span>
                             <span class="marker-value">${entry_price.toFixed(2)}</span>
                         </div>
-                        <div class="price-marker marker-top marker-tp" style="left: ${tpPos.toFixed(2)}%;">
+                        <div class="price-marker marker-top marker-tp" style="left: ${tpPos}%;">
                             <span class="marker-label">TP</span>
                             <span class="marker-value">${take_profit_2r.toFixed(2)}</span>
                         </div>
-
                         <div class="progress-bar-track"></div>
-
-                        <div class="price-marker marker-bottom marker-current" style="left: ${currentPos.toFixed(2)}%;">
+                        <div class="price-marker marker-bottom marker-current" style="left: ${currentPos}%;">
                              <span class="marker-value">${data.price.toFixed(2)}</span>
                         </div>
                     </div>
                 `;
             } else {
-                statusContainer.innerHTML = `<div class="searching-signal">Sinyal Aranıyor...</div>`;
+                statusContainer.innerHTML = `<div class="status-text">Sinyal Aranıyor...</div>`;
             }
         }
     });
@@ -137,5 +140,7 @@ async function mainLoop() {
 }
 
 initializeCards();
-mainLoop();
-setInterval(mainLoop, 5000);
+mainLoop(); // İlk çalıştırma
+setInterval(mainLoop, 5000); // Sinyal ve fiyat güncelleme
+// Geri sayım sayacını her saniye çalıştır
+setInterval(() => { if(new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"})).getHours() < 4) updateCountdown(); }, 1000);
